@@ -1,0 +1,4 @@
+TODO
+
+- Easy adjustment of parameters such as frame rate, format, etc... 
+- Further work on portaudio capture method for portability
