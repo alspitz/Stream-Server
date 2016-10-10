@@ -1,2 +1,4 @@
-all:
+server:
 	gcc -Wall -Werror -lpthread -lasound server.c capture.c -o server
+all:
+	server

@@ -1,7 +1,7 @@
 /****************************************************************
  * A TCP server that streams data to clients using sockets.
- * Each client connection evokes a child thread that sends the 
- * data from a global circular buffer, which is written to by a 
+ * Each client connection evokes a child thread that sends the
+ * data from a global circular buffer, which is written to by a
  * seperate thread. This thread (currently "record") can be adapted
  * to write any data that can be represented as a string of bytes.
  *
@@ -61,6 +61,7 @@ void *send_data(void *param)  // interprets void *param as a socket file descrip
             close(sockfd);
             return NULL;
         }
+
         if (rv != bytes_to_send) {
             fprintf(stderr, "Error: only sent %d out of %lu bytes", rv, bytes_to_send);
         }
@@ -72,7 +73,7 @@ void *send_data(void *param)  // interprets void *param as a socket file descrip
 
 int main(int argc, char *argv[])
 {
-    const int CHUNK_SIZE = 128; 
+    const int CHUNK_SIZE = 128;
     const int BUFFER_SIZE = CHUNK_SIZE * 16;
 
     int new_fd;
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
     int yes = 1;
     char s[INET_ADDRSTRLEN];
     int rv; // return value
-    
+
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -105,8 +106,8 @@ int main(int argc, char *argv[])
         perror("setsockopt");
         return 1;
     }
-   
-    // Bind the socket 
+
+    // Bind the socket
     if (bind(sockfd, servinfo->ai_addr, servinfo->ai_addrlen) == -1) {
         close(sockfd);
         perror("server: bind");

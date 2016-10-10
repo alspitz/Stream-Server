@@ -3,14 +3,18 @@ A script that connects to a network machine and attempts to play incoming
 audio data. Uses PyAudio (Python bindings for PortAudio) for access to the
 audio device, so it should be fairly portable.
 
-Sample rate, number of channels, and sample format must all be edited accordingly.
+Sample rate, number of channels, and sample format must all be edited
+accordingly.
 
 Alex Spitzer 2013
 '''
 
+import queue
+import signal
 import socket
-import threading, Queue
-import sys, signal
+import sys
+import threading
+
 import pyaudio
 
 HOST = "localhost" if len(sys.argv) <= 1 else sys.argv[1]
@@ -24,20 +28,19 @@ def acceptData(s, buff):
         buff.put(data)
     s.close()
 
-
 s = socket.socket()
 s.connect((HOST, PORT))
-buff = Queue.Queue()
+buff = queue.Queue()
 
 t = threading.Thread(target=acceptData, args = (s, buff))
 t.daemon = True
 t.start() # begin receiving data
-    
+
 p = pyaudio.PyAudio()
 stream = p.open(format=pyaudio.paInt16, channels=1, rate=48000, output=True)
 
 def interrupt_handler(signal, frame):
-    print "Quitting..."
+    print("Quitting...")
 
     stream.stop_stream()
     stream.close()
@@ -46,13 +49,14 @@ def interrupt_handler(signal, frame):
 
     sys.exit(0)
 
-signal.signal(signal.SIGINT, interrupt_handler)  # register ^C handler
+signal.signal(signal.SIGINT, interrupt_handler)
+signal.signal(signal.SIGTERM, interrupt_handler)
+
 while 1:
     try:
-        frame = buff.get(True, 1)  # blocking get with 1 second timeout
-    except Queue.Empty:
-        print "End of stream"
+        frame = buff.get(True, 5)  # blocking get with 1 second timeout
+    except queue.Empty:
+        print("End of stream")
         break
 
     stream.write(frame)
-

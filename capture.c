@@ -20,7 +20,7 @@
 
 #include "server.h"
 
-void* record(void *param) 
+void* record(void *param)
 {
     struct thread_data* td = (struct thread_data *) param;
     snd_pcm_t *pcm_handle;  /* handle for the PCM device */
@@ -74,11 +74,16 @@ void* record(void *param)
         fprintf(stderr, "The rate %d Hz is not supported by your hardware.\n ==> Using %d Hw isntead.\n", rate, exact_rate);
     }
 
+    if (snd_pcm_hw_params_set_period_size(pcm_handle, hw_params, 50, 0) < 0) {
+        fprintf(stderr, "Error setting period size.\n");
+        return (void *)1;
+    }
+
     if (snd_pcm_hw_params_set_channels(pcm_handle, hw_params, 1) < 0) {
         fprintf(stderr, "Error setting channels.\n");
         return (void *)1;
     }
-    
+
     if (snd_pcm_hw_params(pcm_handle, hw_params) < 0) {
         fprintf(stderr, "Error settings HW params.\n");
         return (void *)1;
@@ -88,7 +93,7 @@ void* record(void *param)
         fprintf(stderr, "Error preparing audio interface for use.\n");
         return (void *)1;
     }
- 
+
     int *writePtr = td->writePtr;
 
     while (1) {
@@ -100,8 +105,6 @@ void* record(void *param)
         *writePtr = (*writePtr + td->CHUNK_SIZE) % td->BUFFER_SIZE;
         pthread_cond_broadcast(&td->cond);
         pthread_mutex_unlock(&td->mutex);
-
-        
     }
     return NULL;
 }
