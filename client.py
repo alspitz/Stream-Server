@@ -54,7 +54,7 @@ signal.signal(signal.SIGTERM, interrupt_handler)
 
 while 1:
     try:
-        frame = buff.get(True, 5)  # blocking get with 1 second timeout
+        frame = buff.get(True, 5)  # blocking get with 5 second timeout
     except queue.Empty:
         print("End of stream")
         break
