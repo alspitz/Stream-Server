@@ -1,4 +1,4 @@
 server: server.c capture.c server.h capture.h
-	gcc -Wall -Werror -lpthread -lasound server.c capture.c -o server
+	gcc -pthread -o server server.c capture.c -lasound -Wall -Werror
 all:
 	server
